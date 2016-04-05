@@ -7,7 +7,6 @@ import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.sql.functions._
 
 /**
-  * 使用Scala开发集群运行的Spark WordCount程序
   * @author DT大数据梦工厂
   * 新浪微博：http://weibo.com/ilovepains/
   * 

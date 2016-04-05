@@ -3,9 +3,12 @@ package com.dt.spark.SparkApps.sql;
 import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.DriverManager;
+
 /**
-  * 实战演示Java通过JDBC访问Thrift Server，进而访问Spark SQL，进而访问Hive，这是企业级开发中最为常见的方式；
-  */
+ * @author DT大数据梦工厂 
+ * 新浪微博：http://weibo.com/ilovepains/ 
+ * 实战演示Java通过JDBC访问Thrift Server，进而访问Spark SQL，进而访问Hive，这是企业级开发中最为常见的方式；
+ */
 
 
 public class SparkSQLJDBC2ThriftServer {

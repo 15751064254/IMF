@@ -4,6 +4,11 @@ import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.hive.HiveContext
 
+/**
+ * @author DT大数据梦工厂 
+ * 新浪微博：http://weibo.com/ilovepains/
+ */
+ 
 object SparkSQLWindowFuntionOps{
   def main(args: Array[String]): Unit = {
 

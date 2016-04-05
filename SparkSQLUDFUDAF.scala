@@ -7,9 +7,9 @@ import org.apache.spark.{SparkContext, SparkConf}
 
 /**
  *
- * 使用Scala开发集群运行的Spark WordCount程序
  * @author DT大数据梦工厂
  * 新浪微博：http://weibo.com/ilovepains/
+ * 
  * 使用Scala开发集群运行的 Spark WordCount 程序.
  * 通过案例实战 Spark SQL 下的UDF和UDAF的具体使用.
  * UDF: User Defined Function, 用户自定义的函数，函数的输入是一条具体的数据记录，实现上讲就是普通的Scala函数.
