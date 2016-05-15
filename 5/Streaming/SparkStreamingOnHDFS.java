@@ -1,25 +1,26 @@
 package com.dt.spark.Streaming;
 
+/**
+ * Created by root on 5/15/16.
+ */
+
 import java.util.Arrays;
 
 import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaPairDStream;
-import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.api.java.JavaStreamingContextFactory;
 
 import scala.Tuple2;
 
-public class WordCountOnHDFS {
+public class SparkStreamingOnHDFS {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
 		/*
 		 * 第一步：配置SparkConf： 1，至少2条线程：因为Spark Streaming应用程序在运行的时候，至少有一条
@@ -29,12 +30,11 @@ public class WordCountOnHDFS {
 		 * 应用程序而言，每个Executor一般分配多少Core比较合适？根据我们过去的经验，5个左右的
 		 * Core是最佳的（一个段子分配为奇数个Core表现最佳，例如3个、5个、7个Core等）；
 		 */
-		/*
-		 * SparkConf conf = new SparkConf().setMaster("local[2]").
-		 * setAppName("WordCountOnline");
-		 */
 
-		final SparkConf conf = new SparkConf().setMaster("spark://Master:7077").setAppName("WordCountOnHDFS");
+        /*final SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("SparkStreamingOnHDFS");*/
+
+		final SparkConf conf = new SparkConf().setMaster("spark://hadoop-namenode01:7077,hadoop-namenode02:7077")
+				.setAppName("SparkStreamingOnHDFS");
 
 		/*
 		 * 第二步：创建SparkStreamingContext： 1，这个是SparkStreaming应用程序所有功能的起始点和程序调度的核心
@@ -48,27 +48,28 @@ public class WordCountOnHDFS {
 		 * Streaming框架箱运行的话需要Spark工程师写业务逻辑处理代码；
 		 */
 
-		// JavaStreamingContext jsc = new
-		// JavaStreamingContext(conf,Durations.seconds(5));
+        // JavaStreamingContext jsc = new
+        // JavaStreamingContext(conf,Durations.seconds(5));
 
-		// hdfs dfs -mkdri /library/SparkStreaming
-		// hdfs dfs -mkdir /library/SparkStreaming/Data
-		// hdfs dfs -mkdir /library/SparkStreaming/CheckPointData
-		final String checkpointDirectory = "hdfs://mycluster:8020/library/SparkStreaming/CheckPointData";
+        // hdfs dfs -mkdri /sparkStreaming
+        // hdfs dfs -mkdir /sparkStreaming/Data
+        // hdfs dfs -mkdir /sparkStreaming/CheckpointData
 
-		JavaStreamingContextFactory factory = new JavaStreamingContextFactory() {
+        final String checkpointDirectory = "hdfs://mycluster:8020/sparkStreaming/CheckpointData";
 
-			@Override
-			public JavaStreamingContext create() {
-				// TODO Auto-generated method stub
-				return createContext(checkpointDirectory, conf);
-			}
-		};
+        JavaStreamingContextFactory factory = new JavaStreamingContextFactory() {
 
-		/**
-		 * 可以从失败中回复Driver,不过还需要制定Driver这个进程运行在Cluster,并且提交应用程序的时候制定--supervise;
-		 */
-		JavaStreamingContext jsc = JavaStreamingContext.getOrCreate(checkpointDirectory, factory);
+            @Override
+            public JavaStreamingContext create() {
+                // TODO Auto-generated method stub
+                return createContext(checkpointDirectory, conf);
+            }
+        };
+
+        /**
+         * 可以从失败中回复Driver,不过还需要制定Driver这个进程运行在Cluster,并且提交应用程序的时候制定--supervise;
+         */
+        JavaStreamingContext jsc = JavaStreamingContext.getOrCreate(checkpointDirectory, factory);
 
 		/*
 		 * 第三步：创建Spark Streaming输入数据来源input Stream：
@@ -82,10 +83,10 @@ public class WordCountOnHDFS {
 		 * 作为RDD的数据来源生产原始RDD
 		 */
 
-		// JavaReceiverInputDStream lines =
-		// jsc.socketTextStream("localhost",9999);
+        // JavaReceiverInputDStream lines =
+        // jsc.socketTextStream("localhost",9999);
 
-		JavaDStream lines = jsc.textFileStream("hdfs://mycluster:8020/library/SparkStreaming/Data");
+        JavaDStream lines = jsc.textFileStream("hdfs://mycluster:8020/sparkStreaming/Data");
 
 		/*
 		 * 第四步：接下来就像对于RDD编程一样基于DStream进行编程！！！原因是DStream是RDD产生的模板（或者说类），在Spark
@@ -93,50 +94,50 @@ public class WordCountOnHDFS {
 		 * 对初始的DStream进行Transformation级别的处理，例如map、filter等高阶函数等的编程，来进行具体的数据计算
 		 * 第4.1步：讲每一行的字符串拆分成单个的单词
 		 */
-		JavaDStream<String> words = lines.flatMap(new FlatMapFunction<String, String>() { // 如果是Scala，由于SAM转换，所以可以写成val
-																							// words
-																							// =
-																							// lines.flatMap
-																							// {
-																							// line
-																							// =>
-																							// line.split("
-																							// ")}
+        JavaDStream<String> words = lines.flatMap(new FlatMapFunction<String, String>() { // 如果是Scala，由于SAM转换，所以可以写成val
+            // words
+            // =
+            // lines.flatMap
+            // {
+            // line
+            // =>
+            // line.split("
+            // ")}
 
-			@Override
-			public Iterable<String> call(String line) throws Exception {
-				return Arrays.asList(line.split(" "));
-			}
-		});
+            @Override
+            public Iterable<String> call(String line) throws Exception {
+                return Arrays.asList(line.split(" "));
+            }
+        });
 
 		/*
 		 * 第四步：对初始的DStream进行Transformation级别的处理，例如map、filter等高阶函数等的编程，来进行具体的数据计算
 		 * 第4.2步：在单词拆分的基础上对每个单词实例计数为1，也就是word => (word, 1)
 		 */
-		JavaPairDStream<String, Integer> pairs = words.mapToPair(new PairFunction<String, String, Integer>() {
+        JavaPairDStream<String, Integer> pairs = words.mapToPair(new PairFunction<String, String, Integer>() {
 
-			@Override
-			public Tuple2<String, Integer> call(String word) throws Exception {
-				return new Tuple2<String, Integer>(word, 1);
-			}
-		});
+            @Override
+            public Tuple2<String, Integer> call(String word) throws Exception {
+                return new Tuple2<String, Integer>(word, 1);
+            }
+        });
 
 		/*
 		 * 第四步：对初始的DStream进行Transformation级别的处理，例如map、filter等高阶函数等的编程，来进行具体的数据计算
 		 * 第4.3步：在每个单词实例计数为1基础之上统计每个单词在文件中出现的总次数
 		 */
-		JavaPairDStream<String, Integer> wordsCount = pairs.reduceByKey(new Function2<Integer, Integer, Integer>() { // 对相同的Key，进行Value的累计（包括Local和Reducer级别同时Reduce）
+        JavaPairDStream<String, Integer> wordsCount = pairs.reduceByKey(new Function2<Integer, Integer, Integer>() { // 对相同的Key，进行Value的累计（包括Local和Reducer级别同时Reduce）
 
-			@Override
-			public Integer call(Integer v1, Integer v2) throws Exception {
-				return v1 + v2;
-			}
-		});
+            @Override
+            public Integer call(Integer v1, Integer v2) throws Exception {
+                return v1 + v2;
+            }
+        });
 
 		/*
 		 * 此处的print并不会直接出发Job的执行，因为现在的一切都是在Spark Streaming框架的控制之下的，对于Spark
 		 * Streaming 而言具体是否触发真正的Job运行是基于设置的Duration时间间隔的
-		 * 
+		 *
 		 * 诸位一定要注意的是Spark Streaming应用程序要想执行具体的Job，对Dtream就必须有output Stream操作，
 		 * output
 		 * Stream有很多类型的函数触发，类print、saveAsTextFile、saveAsHadoopFiles等，最为重要的一个
@@ -145,39 +146,43 @@ public class WordCountOnHDFS {
 		 * 主要就是用用来完成这些功能的，而且可以随意的自定义具体数据到底放在哪里！！！
 		 *
 		 */
-		wordsCount.print();
+        wordsCount.print();
 
 		/*
 		 * Spark
 		 * Streaming执行引擎也就是Driver开始运行，Driver启动的时候是位于一条新的线程中的，当然其内部有消息循环体，用于
 		 * 接受应用程序本身或者Executor中的消息；
 		 */
-		jsc.start();
+        jsc.start();
 
-		jsc.awaitTermination();
-		jsc.close();
+        jsc.awaitTermination();
+        jsc.close();
 
-	}
+    }
 
-	private static JavaStreamingContext createContext(String checkpointDirectory, SparkConf sparkConf) {
+    private static JavaStreamingContext createContext(String checkpointDirectory, SparkConf sparkConf) {
 
-		// If you do not see this printed, that means the StreamingContext has
-		// been loaded
-		// from the new checkpoint
-		System.out.println("Creating new context");
+        // If you do not see this printed, that means the StreamingContext has
+        // been loaded
+        // from the new checkpoint
+        System.out.println("Creating new context");
 
-		// Create the context with a 1 second batch size
-		JavaStreamingContext ssc = new JavaStreamingContext(sparkConf, Durations.seconds(15));
+        // Create the context with a 1 second batch size
+        JavaStreamingContext ssc = new JavaStreamingContext(sparkConf, Durations.seconds(15));
 
-		ssc.checkpoint(checkpointDirectory);
+        ssc.checkpoint(checkpointDirectory);
 
-		return ssc;
-	}
-	
+        return ssc;
+    }
+
 	/*
-	 * SparkStreaming.sh
-	 *	bin/spark-submit --class com.dt.spark.Streaming.WordCountOnHDFS --files hive/conf/hive-site.xml --driver-class-path hive/lib/mysql-connector-java-5.1.38-bin.jar --master spark://hadoop-namenode01:7077,hadoop-namenode02:7077 WordCountOnHDFS.jar
+	 * SparkStreamingOnHDFS.sh
+	 * bin/spark-submit --class
+	 * com.dt.spark.Streaming.SparkStreamingOnHDFS --files hive/conf/hive-site.xml
+	 * --driver-class-path hive/lib/mysql-connector-java-5.1.38-bin.jar --master
+	 * spark://hadoop-namenode01:7077,hadoop-namenode02:7077 SparkStreamingOnHDFS.jar
 	 *
-	 * hdfs dfs -put /root/data/sampleData /library/SparkStreaming/Data
+	 * hdfs dfs -put /root/data/wordsCount /sparkStreaming/Data
 	 */
 }
+
