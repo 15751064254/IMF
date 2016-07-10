@@ -38,7 +38,7 @@ public class WordCount {
     JavaSparkContext sc = new JavaSparkContext(conf); //其底层实际上就是Scala的SparkContext
 
     /**
-      * 第3步：根据具体的数据来源（HDFS， HBase， Loval FS， DB， S3 等）通过JavaSparkContext来创建JavaRDD
+      * 第3步：根据具体的数据来源（HDFS， HBase， Local FS， DB， S3 等）通过JavaSparkContext来创建JavaRDD
       * JavaRDD的创建基本有三种方式：根据外部的数据来源（例如HDFS），根据Scala集合，由其它的JavaRDD操作数据会被
       * JavaRDD划分成为一系列的 Partitions，分配到每个Partition的数据属于一个Task的处理范畴
       */

@@ -33,7 +33,7 @@ object WordCount {
     val sc = new SparkContext(conf) //创建SparkContext对象，通过传入SparkConf实例来定制Spark运行的具体参数和配置信息
     
     /**
-     * 第3步：根据具体的数据来源（HDFS， HBase， Loval FS， DB， S3 等）通过SparkContext来创建RDD
+     * 第3步：根据具体的数据来源（HDFS， HBase， Local FS， DB， S3 等）通过SparkContext来创建RDD
      * RDD的创建基本有三种方式：根据外部的数据来源（例如HDFS），根据Scala集合，由其它的RDD操作数据会被
      * RDD划分成为一系列的 Partitions，分配到每个Partition的数据属于一个Task的处理范畴
      */
@@ -56,13 +56,13 @@ object WordCount {
     val pairs = words.map { word => (word, 1) }
     
     /**
-     * 第4.2步：在每个单词实例计数为1基础之上统计每个单词在文件中出现的总次数
+     * 第4.3步：在每个单词实例计数为1基础之上统计每个单词在文件中出现的总次数
      */
     val wordCounts = pairs.reduceByKey(_+_) //对相同的Key，进行Value的累计（包括Local和Reducer级别时Reduce）
     
-    wordCounts.foreach(wordNumberPair => println(wordNumberPair._1 + " : " + wordNumberPair._2))
+    //wordCounts.foreach(wordNumberPair => println(wordNumberPair._1 + " : " + wordNumberPair._2))
     
-    //wordCounts.collect.foreach(wordNumberPair => println(wordNumberPair._1 + " : " + wordNumberPair._2))
+    wordCounts.collect.foreach(wordNumberPair => println(wordNumberPair._1 + " : " + wordNumberPair._2))
     
     sc.stop()
     
