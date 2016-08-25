@@ -46,7 +46,7 @@ public class WordCount {
 
     /**
       * 第4步：对初始的JAVARDD进行Transformation级别处理，例如 map， filter 等高阶函数的编程，来进行具体的数据计算
-      *   第4.1步：讲每一行的字符串拆分成每个的单词
+      *   第4.1步：讲每一行的字符串拆分成每个的单词(如果是Scala，由于SAM转换，可以写成 val words = lines.flatMap{ line => line.split(" ")} )
       */
     JavaRDD<String> words = lines.flatMap(new FlatMapFunction<String, String>(){
 
